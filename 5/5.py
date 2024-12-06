@@ -35,9 +35,9 @@ with open(sys.argv[1], "r") as f:
             before = rule[num]["before"]
             after = rule[num]["after"]
             if any([x in after for x in seen]) or any([x in before for x in update[i+1:]]):
-                print()
-                print(f'err: {num} in {nums}')
-                print(rule[num]["before"], rule[num]["after"])
+                # print()
+                # print(f'err: {num} in {nums}')
+                # print(rule[num]["before"], rule[num]["after"])
                 return False
             seen.add(num)
         return True
@@ -54,8 +54,29 @@ with open(sys.argv[1], "r") as f:
     print("-"*20)
 
     # pt 2
+    res = 0
+
+    def get_next(nums):
+        if not nums:
+            return -1
+        n = set()
+        after_sets = [rule[m]["after"] for m in nums]
+        for s in after_sets:
+            n = n.union(s)
+        n = n.intersection(set(nums))
+        n = set(nums).difference(n)
+        return n.pop()
+            
     for update in updates.splitlines():
+        result = []
         nums = update.split(',')
         if not eval_update(nums):
-            new_list = [num for num in nums if rule.get(num) != None]
-            print(new_list)
+            untracked_list = [num for num in nums if rule.get(num) == None] 
+            new_list = [num for num in nums if rule.get(num) != None] 
+            while new_list:
+                next = get_next(new_list)
+                new_list.pop(new_list.index(next))
+                result.append(next)
+            result += untracked_list
+            res += int(result[len(result)//2])
+    print(res)
